@@ -1,23 +1,28 @@
-import("../pkg/index.js")
-	.then(async (rust_module) => {
-		let context = new window.AudioContext();
+import React, { createContext, useContext, useEffect, useState } from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-		let airport_source = await fetch(
-			"https://cdn.freesound.org/previews/31/31446_199517-lq.mp3"
-		);
-		let airport_bank = await rust_module.Bank.new(
-			await airport_source.arrayBuffer(),
-			100,
-			context
-		);
+const WasmContext = createContext(null);
 
-		let airport_sequence = rust_module.Sequence.create_from_all(airport_bank);
+export const WasmProvider = ({ children }) => {
+	const [wasm, setWasm] = useState(null);
 
-		let airport_sound = airport_sequence.generate_sound(context);
+	useEffect(() => {
+		import("../pkg/index.js").then(setWasm).catch(console.error);
+	}, []);
 
-		let airportButton = document.getElementById("airport");
-		airportButton.addEventListener("click", () => {
-			airport_sound.play(context);
-		});
-	})
-	.catch(console.error);
+	return <WasmContext.Provider value={wasm}>{children}</WasmContext.Provider>;
+};
+
+export const useWasm = () => {
+	return useContext(WasmContext);
+};
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+	<WasmProvider>
+		<React.StrictMode>
+			<App />
+		</React.StrictMode>
+	</WasmProvider>
+);
