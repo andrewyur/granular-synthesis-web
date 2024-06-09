@@ -20,9 +20,12 @@ lto = true
 #default = ["wee_alloc"]
 
 [dependencies]
+getrandom = { version = "0.2.15", features = ["js"] }
+rand = "0.8.5"
 # The `wasm-bindgen` crate provides the bare minimum functionality needed
 # to interact with JavaScript.
 wasm-bindgen = "0.2.45"
+wasm-bindgen-futures = "0.4.42"
 
 # `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
 # compared to the default allocator's ~10K. However, it is slower than the default
@@ -32,8 +35,8 @@ wee_alloc = { version = "0.4.2", optional = true }
 # The `web-sys` crate allows you to interact with the various browser APIs,
 # like the DOM.
 [dependencies.web-sys]
-version = "0.3.22"
-features = ["console"]
+version = "0.3.69"
+features = ["console", "AudioContext", "HtmlMediaElement", "MediaElementAudioSourceNode", "Document", "Element", "Window", "Node", "AudioDestinationNode", "BaseAudioContext", "AudioNode", "AudioBuffer", "AudioBufferOptions", "AudioBufferSourceNode", "Request", "RequestInit", "RequestMode", "Response"]
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
@@ -41,10 +44,3 @@ features = ["console"]
 # in debug mode.
 [target."cfg(debug_assertions)".dependencies]
 console_error_panic_hook = "0.1.5"
-
-# These crates are used for running unit tests.
-[dev-dependencies]
-wasm-bindgen-test = "0.2.45"
-futures = "0.1.27"
-js-sys = "0.3.22"
-wasm-bindgen-futures = "0.3.22"
