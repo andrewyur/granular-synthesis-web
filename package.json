@@ -1,10 +1,12 @@
 {
 	"author": "Andrew Yurovchak",
 	"name": "granular-synthesis-web",
+	"homepage": "https://andrewyur.github.io/granular-synthesis-web",
 	"version": "0.1.0",
 	"scripts": {
 		"build": "rimraf dist pkg && webpack",
-		"start": "rimraf dist pkg && webpack-dev-server --open -d"
+		"start": "rimraf dist pkg && webpack-dev-server --open -d",
+		"deploy": "gh-pages -d dist"
 	},
 	"devDependencies": {
 		"@wasm-tool/wasm-pack-plugin": "^1.1.0",
