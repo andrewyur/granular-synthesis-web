@@ -30,49 +30,59 @@ give a randomizer control of these tools, allow for computer generated soundscap
 
 ## App Structure
 
-playback of individual samples can be controlled through sequences. sequences cannot affect other sequences. sequences can be combined.
+samples can be converted into banks. banks cannot affect other banks. banks can be combined.
+a bank can be created from a raw content link, an audio file, a preset sound offered by the app, or a live recording
+when creating a bank, the user will choose what grain size they would like their sample to be split into. this is irreversible.
 
-a sequence can be created from a raw content link, an audio file, a preset sound offered by the app, or a recording
+a sequence takes from one or more banks. sequences cannot affect other sequences. sequences can be combined.
+in the sequence, the user can manipulate the order of grains: they can combine two sequences to combine their contents. they can shuffle the store to order them randomly. they can threshold which grains are played. they can sort the grains. they can model the grains off of a sound. the user can set a sequence to play on repeat.
 
-each sequence contains a bank of grains. when creating a sequence, the user will choose what grain size they would like their sample to be split into. this is irreversible.
+the user can change properties of the sequence, like gain, phase, frequency of grains, speed of grains, pitch of grains.
 
-the user can play. when the sequence is playing, it plays the contents of its store in order, once. the user can set a sequence to play on repeat.
+a sound can be generated from a sequence. all sounds are independent. aspects of the sound that can be changed by running it through an audio node can be changed, but things like phase, grain order, and which grains are played cannot be changed. sounds play the contents of its parent sequence in order. sounds can also be imported directly.
 
-the user can change properties of the sequence, like gain, phase, frequency of grains, speed of grains, pitch of grains
-
-the user can manipulate the order of grains: they can combine two sequences to combine their stores. they can shuffle the store to order them randomly. they can threshold which grains are played. they can sort the grains. they can model the grains off of a sample(not sequence).
+all user supplied scalar values should eventually be able to be controlled by a graph, so a dynamic range of values can be used instead of just one static value
 
 ## Techical Structure
 
-the two main structures are grains, which are small slices of an audio sample, and sequences, which contain an array of grains. these two will be defined in rust.
+grains, which are , and sequences, which contain an array of grains. these two will be defined in rust.
+the main structures are as follows:
 
-sequences will have the attributes:
+- Grains: small slices of an audio sample
+  - Fields:
+    - amp_array: a vec of f32 PCM values between 1.0 and -1.0, representing amplitudes of the sample at a point in time.
+    - freq_array: an array of freqencies present within the grain, calculated by fourier transform. non-essential, can be implemented later
+  - Methods:
+- Banks: an ordered collection of grains
+  - Fields:
+    - grain_array: a vec of grain structs. grain values do not move out of this vector. they are copied when a sound is generated from a sequence
+  - Methods:
+    - get: returns a reference to the grain at the given index
+    - query methods: returns the index of a grain that is closest to the user's query
+- Sequences: collections of indecies from banks
+  - Fields:
+    - banks_array: an array of references to banks whose grains compose the sequence
+    - grain_inds: an array of tuples of indexes, the first one being the position of the grain's bank reference in the reference array, and the second being the grain's position in that bank.
+  - Methods:
+    - create methods: calls to bank query methods will be made here
+    - modify methods: modify phase, frequency, and modification of grains individually
+- Sounds: a js audiobuffer object
+  - Fields:
+    - audiobuffer: the js audiobuffer
+    - modification values: the values to which audiobuffer
+  - Methods:
+    - play/pause: creates a source node, and then chains the node through modification nodes if necessary
+    - modify: sets modification values
 
-- array of grains
-- gain, phase, etc.
-
-sequences will have the methods:
-
-- create
-- combine with another sequence
-- play
-- pause
-- set attributes
-- manipulate array
-
-grains will have the attributes:
-
-- amplitude array
-- array of calculated frequency
-
-grains will not have any methods
-
-sequences will have a wrapper structure which controls the appearance, and maps user input to sequence methods. javascript will handle storing sequence structures, and wrapping them with the appearance structure.
+all structures (except for grains)will have a wrapper structure which controls the appearance, and maps user input to methods. javascript will handle storing the structures, and wrapping them with the appearance structure.
 
 ## TODO
 
-- sequence structure, containing a node and not grain array
 - add react + sequence display structure
-- sequence can be played, playing its sample
-- sample is split up into grains on sequence creation
-- sequence can played, playing its grain array
+- user is able to create a bank, modify bank creation parameters
+- user is able to create a sequence, modify sequence creation parameters
+- user is able to create a sound, modify sound creation parameters
+- user is able to play a sound, modify sound parameters
+- user is able to control parameters with graphs
+- user is able to create multiple structs, play multiple sounds
+- user can arrange sounds on a board, which dictates when they play

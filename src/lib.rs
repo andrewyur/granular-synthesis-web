@@ -1,8 +1,10 @@
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-pub mod manager;
+pub mod bank;
+pub mod grain;
 pub mod seq;
+pub mod sound;
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.
