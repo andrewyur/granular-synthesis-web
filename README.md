@@ -86,3 +86,5 @@ all structures (except for grains)will have a wrapper structure which controls t
 - user is able to control parameters with graphs
 - user is able to create multiple structs, play multiple sounds
 - user can arrange sounds on a board, which dictates when they play
+
+I am so done with react after this, this sucks

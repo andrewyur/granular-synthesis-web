@@ -2,9 +2,30 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Source.css";
 
 function SourceItem(props) {
-	let buf = props.arrayBuffer;
+	let sourceItemRef = useRef();
+
+	let dragstartHandler = (event) => {
+		event.dataTransfer.setData("sourcename", props.name);
+		document.getElementById("bank-drop").classList.add("dropZone");
+	};
+
+	let dragendHandler = (event) => {
+		document.querySelectorAll(".dropZone").forEach((element) => {
+			element.classList.remove("dropZone");
+		});
+	};
+
+	useEffect(() => {
+		sourceItemRef.current.addEventListener("dragstart", dragstartHandler);
+		sourceItemRef.current.addEventListener("dragend", dragendHandler);
+		return () => {
+			sourceItemRef.current.removeEventListener("dragend", dragendHandler);
+			sourceItemRef.current.removeEventListener("dragstart", dragstartHandler);
+		};
+	});
+
 	return (
-		<div className="source">
+		<div className="source" draggable="true" ref={sourceItemRef}>
 			<p>{props.name}</p>
 		</div>
 	);
@@ -21,25 +42,12 @@ function CreateButton(props) {
 	let [input, setInput] = useState(null);
 
 	let addSource = (arrayBuffer) => {
-		props.setSources([
-			...props.sources,
-			<SourceItem
-				arrayBuffer={arrayBuffer}
-				name={name}
-				key={props.sources.length}
-			/>,
-		]);
+		props.setSources([...props.sources, { buf: arrayBuffer, name }]);
 	};
 
-	let handleFileChange = (event) => {
-		setInput(event.target.files);
-	};
-	let handleNameChange = (event) => {
-		setName(event.target.value);
-	};
-	let handleLinkChange = (event) => {
-		setInput(event.target.value);
-	};
+	let handleFileChange = (event) => setInput(event.target.files);
+	let handleNameChange = (event) => setName(event.target.value);
+	let handleLinkChange = (event) => setInput(event.target.value);
 
 	let processInput = async () => {
 		if (typeof input == "string") {
@@ -141,8 +149,9 @@ function CreateButton(props) {
 	);
 }
 
-export default function Source() {
-	let [sources, setSources] = useState([]);
+export default function Source(props) {
+	let sources = props.sources;
+	let setSources = props.setSources;
 
 	let givenSources = [
 		["airport", "https://cdn.freesound.org/previews/31/31446_199517-lq.mp3"],
@@ -156,7 +165,7 @@ export default function Source() {
 
 		let source = await (await fetch(link)).arrayBuffer();
 
-		return <SourceItem arrayBuffer={source} name={name} key={name} />;
+		return { buf: source, name };
 	};
 
 	useEffect(() => {
@@ -172,7 +181,15 @@ export default function Source() {
 				<h2>Sources:</h2>
 				<CreateButton setSources={setSources} sources={sources} />
 			</div>
-			{sources}
+			<div id="source-list">
+				{sources.map((source_obj) => (
+					<SourceItem
+						arrayBuffer={source_obj.source}
+						name={source_obj.name}
+						key={source_obj.name}
+					/>
+				))}
+			</div>
 		</div>
 	);
 }

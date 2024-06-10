@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Sound from "./components/Sound";
 import Source from "./components/Source";
 import Bank from "./components/Bank";
@@ -6,6 +6,8 @@ import Sequence from "./components/Sequence";
 import "./App.css";
 
 export default function App() {
+	let [sources, setSources] = useState([]);
+
 	return (
 		<>
 			<h1>Granular Synthesis Web Playground</h1>
@@ -14,8 +16,8 @@ export default function App() {
 			</a>
 			<div id="struct-container">
 				<div id="vertical-structs">
-					<Source />
-					<Bank />
+					<Source setSources={setSources} sources={sources} />
+					<Bank sources={sources} />
 					<Sequence />
 				</div>
 				<Sound />
