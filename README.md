@@ -2,6 +2,10 @@
 
 rust + wasm + react
 
+## I gave up
+
+Managing state with javascript (i am learning typescript for my next web project) and react was starting to get pretty challenging, not to mention sharing data between separate components. The anvil that broke the already very shaky and sloppy camel's miserable back was the fact that because of the nature of javascript, sharing references to data between java and wasm components is impossible. because the nature of this project is storing large amounts of data, and the challenge was supposed to be about how to minimize data copying, this meant that the two options going forward were: abandon the challenge of the project and copy data every time it is needed, or rewrite the applicaton so that rust handles and stores everything. neither of these sounded very appealing, and i was also looking forward to learning gleam, so i have decided to move on and put the camel out of its misery.
+
 ## More Info & Resources
 
 - https://en.wikipedia.org/wiki/Granular_synthesis
