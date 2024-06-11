@@ -5,6 +5,7 @@ pub mod bank;
 pub mod grain;
 pub mod seq;
 pub mod sound;
+pub mod source;
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.

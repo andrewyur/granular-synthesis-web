@@ -18,11 +18,27 @@ export const useWasm = () => {
 	return useContext(WasmContext);
 };
 
+const AudioContext = createContext(null);
+
+export const AudioProvider = ({ children }) => {
+	return (
+		<AudioContext.Provider value={new window.AudioContext()}>
+			{children}
+		</AudioContext.Provider>
+	);
+};
+
+export const useAudio = () => {
+	return useContext(AudioContext);
+};
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
 	<WasmProvider>
-		<React.StrictMode>
-			<App />
-		</React.StrictMode>
+		<AudioProvider>
+			<React.StrictMode>
+				<App />
+			</React.StrictMode>
+		</AudioProvider>
 	</WasmProvider>
 );

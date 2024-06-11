@@ -1,195 +1,125 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import "./Source.css";
+import { useError } from "./Error";
 
-function SourceItem(props) {
-	let sourceItemRef = useRef();
+function CreateButton(props) {
+	const modalRef = useRef();
+	const [Error, showError] = useError();
 
-	let dragstartHandler = (event) => {
-		event.dataTransfer.setData("sourcename", props.name);
-		document.getElementById("bank-drop").classList.add("dropZone");
+	const handleFormSubmit = async (event) => {
+		modalRef.current.close();
+
+		event.preventDefault();
+
+		const formData = new FormData(event.target);
+
+		const link = formData.get("link");
+		const fileList = formData.get("file");
+
+		if (link) {
+			const source = await fetch(link);
+
+			if (!source.ok) {
+				showError("File could not be fetched!");
+			}
+
+			const arrayBuffer = await source.arrayBuffer();
+			props.addSource(arrayBuffer, link);
+		}
+		if (fileList) {
+			for (const file of fileList) {
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					const arrayBuffer = event.target.result;
+					props.addSource(arrayBuffer, file.name);
+				};
+				reader.onerror = () => {
+					showError("File could not be read!");
+				};
+				reader.readAsArrayBuffer(file);
+			}
+		}
 	};
-
-	let dragendHandler = (event) => {
-		document.querySelectorAll(".dropZone").forEach((element) => {
-			element.classList.remove("dropZone");
-		});
-	};
-
-	useEffect(() => {
-		sourceItemRef.current.addEventListener("dragstart", dragstartHandler);
-		sourceItemRef.current.addEventListener("dragend", dragendHandler);
-		return () => {
-			sourceItemRef.current.removeEventListener("dragend", dragendHandler);
-			sourceItemRef.current.removeEventListener("dragstart", dragstartHandler);
-		};
-	});
 
 	return (
-		<div className="source" draggable="true" ref={sourceItemRef}>
+		<>
+			<button id="create-source" onClick={() => modalRef.current.showModal()}>
+				Add a source
+			</button>
+			<dialog ref={modalRef}>
+				<form onSubmit={handleFormSubmit}>
+					<label>
+						Upload a file:
+						<input type="file" name="file" accept=".mp3,.wav" multiple />
+					</label>
+					<p>Or</p>
+					<label>
+						Provide a link to a file:
+						<input type="url" name="link" />
+					</label>
+					<div>
+						<button type="submit">Ok</button>
+						<button onClick={() => modalRef.current.close()}>Cancel</button>
+					</div>
+				</form>
+			</dialog>
+			<Error />
+		</>
+	);
+}
+
+function SourceItem(props) {
+	const dragstartHandler = (event) => {
+		event.dataTransfer.setData("source/name", props.name);
+		document.getElementById("create-bank").classList.add("dropZone");
+	};
+
+	const dragendHandler = () => {
+		document.getElementById("create-bank").classList.remove("dropZone");
+	};
+
+	return (
+		<div
+			className="source"
+			draggable="true"
+			onDragStart={dragstartHandler}
+			onDragEnd={dragendHandler}
+		>
 			<p>{props.name}</p>
 		</div>
 	);
 }
 
-function CreateButton(props) {
-	let modalRef = useRef();
-	let errorModalRef = useRef();
-	let [errorMessage, setErrorMessage] = useState("There was a problem!");
-	let fileRef = useRef();
-	let linkRef = useRef();
-	let nameRef = useRef();
-	let [name, setName] = useState("source");
-	let [input, setInput] = useState(null);
+export default function SourceContainer(props) {
+	const givenSources = [
+		"https://cdn.freesound.org/previews/31/31446_199517-lq.mp3",
+	];
 
-	let addSource = (arrayBuffer) => {
+	const addSource = (arrayBuffer, name) => {
 		props.setSources([...props.sources, { buf: arrayBuffer, name }]);
 	};
 
-	let handleFileChange = (event) => setInput(event.target.files);
-	let handleNameChange = (event) => setName(event.target.value);
-	let handleLinkChange = (event) => setInput(event.target.value);
-
-	let processInput = async () => {
-		if (typeof input == "string") {
-			let source = await fetch(input);
-
-			if (!source.ok) {
-				setErrorMessage("File could not be fetched!");
-				errorModalRef.current.showModal();
-			} else {
-				const arrayBuffer = await source.arrayBuffer();
-				addSource(arrayBuffer);
-			}
-		} else if (input instanceof FileList) {
-			for (let file of input) {
-				const reader = new FileReader();
-				reader.onload = (event) => {
-					const arrayBuffer = event.target.result;
-					addSource(arrayBuffer);
-				};
-				reader.onerror = () => {
-					setErrorMessage("File could not be read!");
-					errorModalRef.current.showModal();
-				};
-				reader.readAsArrayBuffer(file);
-			}
-		}
-		setInput(null);
-		fileRef.current.value = "";
-		linkRef.current.value = "";
-		nameRef.current.value = "";
-	};
-
+	// This useEffect has to stay here because state updates must happen after render
 	useEffect(() => {
-		fileRef.current.addEventListener("change", handleFileChange);
-		linkRef.current.addEventListener("change", handleLinkChange);
-		nameRef.current.addEventListener("change", handleNameChange);
-		return () => {
-			fileRef.current.removeEventListener("change", handleFileChange);
-			nameRef.current.removeEventListener("change", handleNameChange);
-			linkRef.current.removeEventListener("change", handleLinkChange);
-		};
-	});
-
-	return (
-		<>
-			<button
-				onClick={() => {
-					modalRef.current.showModal();
-					setInput(null);
-				}}
-			>
-				create
-			</button>
-			<dialog ref={modalRef}>
-				<label>
-					Upload a file:
-					<input
-						type="file"
-						ref={fileRef}
-						style={{ display: "block", margin: "5px" }}
-						accept=".mp3,.wav"
-						multiple
-					/>
-				</label>
-				<p>Or</p>
-				<label>
-					Provide a link to a file:
-					<input
-						type="text"
-						style={{ display: "block", margin: "5px" }}
-						ref={linkRef}
-					/>
-				</label>
-				<label>
-					Display name for the source:
-					<input
-						type="text"
-						style={{ display: "block", margin: "5px" }}
-						ref={nameRef}
-					/>
-				</label>
-				<div>
-					<button
-						onClick={() => {
-							modalRef.current.close();
-							processInput();
-						}}
-					>
-						Ok
-					</button>
-					<button onClick={() => modalRef.current.close()}>Cancel</button>
-				</div>
-			</dialog>
-			<dialog ref={errorModalRef}>
-				<p>{errorMessage}</p>
-				<button onClick={() => errorModalRef.current.close()}>Ok</button>
-			</dialog>
-		</>
-	);
-}
-
-export default function Source(props) {
-	let sources = props.sources;
-	let setSources = props.setSources;
-
-	let givenSources = [
-		["airport", "https://cdn.freesound.org/previews/31/31446_199517-lq.mp3"],
-		["airport2", "https://cdn.freesound.org/previews/31/31446_199517-lq.mp3"],
-		["airport3", "https://cdn.freesound.org/previews/31/31446_199517-lq.mp3"],
-		["airport4", "https://cdn.freesound.org/previews/31/31446_199517-lq.mp3"],
-	];
-
-	let createSources = async (tup) => {
-		let [name, link] = tup;
-
-		let source = await (await fetch(link)).arrayBuffer();
-
-		return { buf: source, name };
-	};
-
-	useEffect(() => {
-		(async () => {
-			let given = await Promise.all(givenSources.map(createSources));
-			setSources([...sources, ...given]);
-		})();
+		givenSources.forEach(async (link) => {
+			const source = await (await fetch(link)).arrayBuffer();
+			addSource(source, link);
+		});
 	}, []);
 
 	return (
 		<div id="source">
-			<div className="title">
-				<h2>Sources:</h2>
-				<CreateButton setSources={setSources} sources={sources} />
-			</div>
+			<h2>Sources:</h2>
 			<div id="source-list">
-				{sources.map((source_obj) => (
+				{props.sources.map((source_obj, i) => (
 					<SourceItem
 						arrayBuffer={source_obj.source}
 						name={source_obj.name}
-						key={source_obj.name}
+						key={i}
 					/>
 				))}
 			</div>
+			<CreateButton addSource={addSource} />
 		</div>
 	);
 }

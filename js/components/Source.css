@@ -21,3 +21,8 @@
 	align-items: center;
 	gap: 10px;
 }
+
+input {
+	display: "block";
+	margin: "5px";
+}

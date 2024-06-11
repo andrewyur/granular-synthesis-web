@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sound from "./components/Sound";
-import Source from "./components/Source";
-import Bank from "./components/Bank";
+import SourceContainer from "./components/Source";
+import BankContainer from "./components/Bank";
 import Sequence from "./components/Sequence";
 import "./App.css";
 
@@ -16,8 +16,8 @@ export default function App() {
 			</a>
 			<div id="struct-container">
 				<div id="vertical-structs">
-					<Source setSources={setSources} sources={sources} />
-					<Bank sources={sources} />
+					<SourceContainer setSources={setSources} sources={sources} />
+					<BankContainer sources={sources} />
 					<Sequence />
 				</div>
 				<Sound />

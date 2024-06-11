@@ -4,8 +4,7 @@
 	flex-direction: column;
 }
 
-.bank,
-.dropTarget {
+#create-bank {
 	margin: 20px;
 	height: 40px;
 	display: flex;
