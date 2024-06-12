@@ -2,9 +2,11 @@
 
 rust + wasm + react
 
-## I gave up
+## ~~I gave up~~ I will return
 
-Managing state with javascript (i am learning typescript for my next web project) and react was starting to get pretty challenging, not to mention sharing data between separate components. The anvil that broke the already very shaky and sloppy camel's miserable back was the fact that because of the nature of javascript, sharing references to data between java and wasm components is impossible. because the nature of this project is storing large amounts of data, and the challenge was supposed to be about how to minimize data copying, this meant that the two options going forward were: abandon the challenge of the project and copy data every time it is needed, or rewrite the applicaton so that rust handles and stores everything. neither of these sounded very appealing, and i was also looking forward to learning gleam, so i have decided to move on and put the camel out of its misery.
+Managing state with javascript and react was starting to get pretty challenging, not to mention sharing data between separate components. The anvil that broke the already very shaky and sloppy camel's miserable back was the fact that because of the nature of javascript, sharing references to data between java and wasm components is impossible. because the nature of this project is storing large amounts of data, and the challenge was supposed to be about how to minimize data copying, this meant that the two options going forward were: abandon the challenge of the project and copy data every time it is needed, or rewrite the applicaton so that rust handles and stores everything, while probably still struggling with the language. neither of these sounded very appealing, and i was also looking forward to learning gleam, ~~so i have decided to move on and put the camel out of its misery.~~ 
+
+This project was fun to work on, and even if it wasn't successful, it helped me understand the limitations of webassembly. webasssembly is still being actively worked on, and when eventually there is better support for reference passing in javascript with wasm, i will return. For now, there are some other interesting (and less frustrating) projects that i have been wanting to give a try.
 
 ## More Info & Resources
 
